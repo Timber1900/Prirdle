@@ -1,12 +1,17 @@
 <script lang="ts">
-  import { primes } from '../constants';
-  import { show } from '../store';
+  import { DAY_SKIP, primes, shuffled_primes } from '../constants';
+  import { show, curBoard, stats } from '../store';
+  import { onMount } from 'svelte';
 
-  const rightGuess = '12959';
-  let guessed = false;
+  let rightGuess;
+  let guessed;
 
   let keypad = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   let keypadColors = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+
+  function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
 
   const temp = new Array(35);
   let curGuess = '';
@@ -21,19 +26,17 @@
     } else if (
       key === 'Enter' &&
       curGuess.length === 5 &&
-      primes.includes(parseInt(curGuess))
+      primes.includes(curGuess)
     ) {
       pastGuesses.push(curGuess);
       curGuess = '';
     }
   }
-
   const addToGuess = (n: number) => {
     if (curGuess.length < 5 && !guessed) {
       curGuess += `${n}`;
     }
   };
-
   const getValues = (pg: string[], cg: string) => {
     let final = [];
 
@@ -43,7 +46,6 @@
 
     return [...final, ...curGuess];
   };
-
   const getColors = (pg: string[], cg: string) => {
     let final = [];
 
@@ -72,19 +74,130 @@
         }
       });
       final = [...final, ...tempFinal];
-      console.log(tempFinal);
-      if (tempFinal.reduce((a, b) => a + b, 0) === 0) guessed = true;
+      if (tempFinal.reduce((a, b) => a + b, 0) === 0) endGame(true);
     });
 
+    if (pastGuesses.length === 7) endGame(false);
+
     [...curGuess].forEach((char, i) => {
-      final.push(2);
+      final.push(3);
     });
 
     return final;
   };
 
+  const endGame = (win: boolean) => {
+    guessed = true;
+
+    const temp_stats = $stats;
+    if (daysIntoYear(new Date()) !== temp_stats.lastDayAdded) {
+      temp_stats.played++;
+      temp_stats.lastDayAdded = daysIntoYear(new Date());
+      if (win) {
+        temp_stats.wins++;
+        temp_stats.streak++;
+        if (temp_stats.streak > temp_stats.maxStreak)
+          temp_stats.maxStreak = temp_stats.streak;
+        temp_stats.guesses[pastGuesses.length.toString()]++;
+      } else {
+        temp_stats.streak = 0;
+        temp_stats.guesses.fail++;
+      }
+
+      localStorage.setItem('board-stats', JSON.stringify(temp_stats));
+    }
+  };
+
   $: values = getValues(pastGuesses, curGuess);
   $: colors = getColors(pastGuesses, curGuess);
+  $: {
+    updateCurBoard(pastGuesses, curGuess, guessed);
+  }
+
+  onMount(() => {
+    let local_stats: App.Stats | null = JSON.parse(
+      localStorage.getItem('board-stats')
+    );
+    if (!local_stats) {
+      const blankStats: App.Stats = {
+        guesses: {
+          '1': 0,
+          '2': 0,
+          '3': 0,
+          '4': 0,
+          '5': 0,
+          '6': 0,
+          '7': 0,
+          fail: 0,
+        },
+        maxStreak: 0,
+        played: 0,
+        streak: 0,
+        wins: 0,
+        lastDayAdded: 0,
+      };
+
+      localStorage.setItem('board-stats', JSON.stringify(blankStats));
+      $stats = blankStats;
+    } else {
+      $stats = local_stats;
+    }
+
+    let _curBoard: App.boardState | null = JSON.parse(
+      localStorage.getItem('cur-board')
+    );
+
+    const days = daysIntoYear(new Date());
+
+    if (!_curBoard) {
+      const blankBoard: App.boardState = {
+        boardState: [],
+        date: days,
+        hasGuessed: false,
+        solution: shuffled_primes[days + DAY_SKIP],
+        colors,
+      };
+      localStorage.setItem('cur-board', JSON.stringify(blankBoard));
+      $curBoard = blankBoard;
+    } else {
+      if (_curBoard.date !== days) {
+        const blankBoard: App.boardState = {
+          boardState: [],
+          date: days,
+          hasGuessed: false,
+          solution: shuffled_primes[days + DAY_SKIP],
+          colors,
+        };
+        $curBoard = blankBoard;
+      } else {
+        $curBoard = _curBoard;
+      }
+    }
+
+    rightGuess = $curBoard.solution;
+    guessed = $curBoard.hasGuessed;
+    pastGuesses = [...$curBoard.boardState];
+  });
+
+  const updateCurBoard = (pg: string[], cg: string, g: boolean) => {
+    if ($curBoard) {
+      $curBoard.hasGuessed = g;
+      $curBoard.boardState = pg;
+      $curBoard.colors = colors;
+      localStorage.setItem('cur-board', JSON.stringify($curBoard));
+    }
+  };
+
+  function daysIntoYear(date) {
+    return (
+      (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) -
+        Date.UTC(date.getFullYear(), 0, 0)) /
+      24 /
+      60 /
+      60 /
+      1000
+    );
+  }
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -120,15 +233,19 @@
         {#each temp as _, i}
           {#key values[i]}
             <div
-              class={`small:w-[62px] small:h-[62px] w-[46.5px] h-[46.5px] flex items-center justify-center border-2 text-3xl font-semibold ${
-                values[i]
-                  ? 'border-[#565758] animate-scale'
-                  : 'border-[#3a3a3c] animate-none'
+              class={`small:w-[62px] small:h-[62px] w-[46.5px] h-[46.5px] flex items-center justify-center  text-3xl font-semibold ${
+                colors[i] === 2 || colors[i] === 1 || colors[i] === 0
+                  ? 'border-none animate-none'
+                  : values[i]
+                  ? 'border-2 border-[#565758] animate-scale'
+                  : 'border-2 border-[#3a3a3c] animate-none'
               } ${
                 colors[i] === 0
                   ? 'bg-[#538d4e]'
                   : colors[i] === 1
                   ? 'bg-[#B59F3B]'
+                  : colors[i] === 2
+                  ? 'bg-[#3a3a3c]'
                   : ''
               }`}
             >
@@ -163,7 +280,7 @@
     <div class="flex flex-row gap-2 mt-2">
       <div
         on:click={() => {
-          if (curGuess.length === 5 && primes.includes(parseInt(curGuess))) {
+          if (curGuess.length === 5 && primes.includes(curGuess)) {
             pastGuesses.push(curGuess);
             curGuess = '';
           }

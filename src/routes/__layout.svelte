@@ -1,18 +1,12 @@
-<script>
+<script lang="ts">
   import Modal from '../components/Modal.svelte';
   import Popup from '../components/Popup.svelte';
-  import '../app.css';
   import { show } from '../store';
-
-  const close = () => {
-    $show = false;
-  };
+  import '../app.css';
 </script>
 
 <div class="relative z-0 w-full h-full">
   <Modal show={$show} exit={() => ($show = !$show)} />
   <Popup show={$show} />
-  <div class={`${$show ? 'blur-[1px]' : 'blur-none'} transition-all h-full`}>
-    <slot />
-  </div>
+  <slot />
 </div>
