@@ -11,7 +11,10 @@ module.exports = {
         fly: {
           '0%': { transform: 'translateY(40%) scale(0%)' },
           '100%': { transform: 'translateY(0%) scale(100%)' },
-        }
+        },
+      },
+      screens: {
+        'small': '360px',
       },
       animation: {
         scale: 'scale 0.1s ease-in-out',

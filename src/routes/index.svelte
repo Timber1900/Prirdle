@@ -105,12 +105,16 @@
     </span>
   </header>
   <main class="w-full grow">
-    <div class="w-[320px] sm: h-full mx-auto flex items-center justify-center">
-      <div class="grid grid-cols-5 grid-rows-7 w-[320px] h-[448px] text-center">
+    <div
+      class="small:w-[320px] w-[240px] h-full mx-auto flex items-center justify-center"
+    >
+      <div
+        class="grid grid-cols-5 grid-rows-7 small:w-[320px] w-[240px] small:h-[448px] h-[336px] text-center"
+      >
         {#each temp as _, i}
           {#key values[i]}
             <div
-              class={`w-[62px] h-[62px] flex items-center justify-center border-2 text-3xl font-semibold ${
+              class={`small:w-[62px] small:h-[62px] w-[46.5px] h-[46.5px] flex items-center justify-center border-2 text-3xl font-semibold ${
                 values[i]
                   ? 'border-[#565758] animate-scale'
                   : 'border-[#3a3a3c] animate-none'
