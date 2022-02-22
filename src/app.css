@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 body {
+  height: 100%;
   margin: 0;
   position: fixed;
+}
+
+html {
+  width: 100%;
+  height: 100%;
 }

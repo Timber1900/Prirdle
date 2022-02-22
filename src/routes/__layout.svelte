@@ -9,10 +9,10 @@
   };
 </script>
 
-<div class="relative z-0">
+<div class="relative z-0 w-full h-full">
   <Modal show={$show} exit={() => ($show = !$show)} />
   <Popup show={$show} />
-  <div class={`${$show ? 'blur-[1px]' : 'blur-none'} transition-all`}>
+  <div class={`${$show ? 'blur-[1px]' : 'blur-none'} transition-all h-full`}>
     <slot />
   </div>
 </div>

@@ -90,7 +90,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div
-  class="w-screen h-screen bg-[#121213]  flex flex-col justify-center items-center text-white"
+  class="w-screen h-full bg-[#121213]  flex flex-col justify-center items-center text-white"
 >
   <header
     class="h-14 w-full flex items-center justify-center font-sans text-3xl font-semibold border-b border-[#3a3a3c]"

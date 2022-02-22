@@ -5649,7 +5649,7 @@ var init__ = __esm({
     init_layout_svelte();
     entry = "pages/__layout.svelte-ef59f802.js";
     js = ["pages/__layout.svelte-ef59f802.js", "chunks/vendor-491a3ca6.js", "chunks/store-0bbced0d.js"];
-    css = ["assets/pages/__layout.svelte-37df07b5.css"];
+    css = ["assets/pages/__layout.svelte-5b20b49f.css"];
   }
 });
 
@@ -5770,8 +5770,8 @@ var init_index_svelte = __esm({
 
 <div class="${"w-screen h-screen bg-[#121213] flex flex-col justify-center items-center text-white"}"><header class="${"h-14 w-full flex items-center justify-center font-sans text-3xl font-semibold border-b border-[#3a3a3c]"}"><p class="${"mx-auto"}">Prirdle</p>
     <span class="${"mx-2 text-white"}"><svg xmlns="${"http://www.w3.org/2000/svg"}" height="${"24"}" viewBox="${"0 0 24 24"}" width="${"24"}" fill="${"#fff"}"><path d="${"M16,11V3H8v6H2v12h20V11H16z M10,5h4v14h-4V5z M4,11h4v8H4V11z M20,19h-4v-6h4V19z"}"></path></svg></span></header>
-  <main class="${"w-full grow"}"><div class="${"w-[320px] sm: h-full mx-auto flex items-center justify-center"}"><div class="${"grid grid-cols-5 grid-rows-7 w-[320px] h-[448px] text-center"}">${each(temp, (_, i2) => {
-        return `<div${add_attribute("class", `w-[62px] h-[62px] flex items-center justify-center border-2 text-3xl font-semibold ${values[i2] ? "border-[#565758] animate-scale" : "border-[#3a3a3c] animate-none"} ${colors[i2] === 0 ? "bg-[#538d4e]" : colors[i2] === 1 ? "bg-[#B59F3B]" : ""}`, 0)}>${escape(values[i2] ?? "")}
+  <main class="${"w-full grow"}"><div class="${"small:w-[320px] w-[240px] h-full mx-auto flex items-center justify-center"}"><div class="${"grid grid-cols-5 grid-rows-7 small:w-[320px] w-[240px] small:h-[448px] h-[336px] text-center"}">${each(temp, (_, i2) => {
+        return `<div${add_attribute("class", `small:w-[62px] small:h-[62px] w-[46.5px] h-[46.5px] flex items-center justify-center border-2 text-3xl font-semibold ${values[i2] ? "border-[#565758] animate-scale" : "border-[#3a3a3c] animate-none"} ${colors[i2] === 0 ? "bg-[#538d4e]" : colors[i2] === 1 ? "bg-[#B59F3B]" : ""}`, 0)}>${escape(values[i2] ?? "")}
             </div>`;
       })}</div></div></main>
   <footer class="${"mb-2"}"><div class="${"grid grid-cols-3 grid-rows-3 gap-2 w-[145px] mx-auto"}">${each(keypad, (digit, i2) => {
@@ -5800,8 +5800,8 @@ var entry3, js3, css3;
 var init__3 = __esm({
   ".svelte-kit/output/server/nodes/2.js"() {
     init_index_svelte();
-    entry3 = "pages/index.svelte-0ad132e0.js";
-    js3 = ["pages/index.svelte-0ad132e0.js", "chunks/vendor-491a3ca6.js", "chunks/store-0bbced0d.js"];
+    entry3 = "pages/index.svelte-41ded4b3.js";
+    js3 = ["pages/index.svelte-41ded4b3.js", "chunks/vendor-491a3ca6.js", "chunks/store-0bbced0d.js"];
     css3 = [];
   }
 });
@@ -7799,7 +7799,7 @@ var user_hooks = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   [Symbol.toStringTag]: "Module"
 });
-var template = ({ head, body, assets: assets2, nonce }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<meta name="description" content="" />\n		<link rel="icon" href="' + assets2 + '/favicon.png" />\n		<meta name="viewport" content="width=device-width, initial-scale=1" />\n		' + head + "\n	</head>\n	<body>\n		<div>" + body + "</div>\n	</body>\n</html>\n";
+var template = ({ head, body, assets: assets2, nonce }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<meta name="description" content="" />\n		<link rel="icon" href="' + assets2 + '/favicon.png" />\n		<meta name="viewport" content="width=device-width, initial-scale=1">\n		' + head + "\n	</head>\n	<body>\n		<div>" + body + "</div>\n	</body>\n</html>\n";
 var read = null;
 set_paths({ "base": "", "assets": "" });
 var get_hooks = (hooks) => ({
@@ -7857,7 +7857,7 @@ var manifest = {
   assets: /* @__PURE__ */ new Set(["favicon.png", "primes.txt"]),
   _: {
     mime: { ".png": "image/png", ".txt": "text/plain" },
-    entry: { "file": "start-acd70364.js", "js": ["start-acd70364.js", "chunks/vendor-491a3ca6.js"], "css": [] },
+    entry: { "file": "start-bcdbdf9b.js", "js": ["start-bcdbdf9b.js", "chunks/vendor-491a3ca6.js"], "css": [] },
     nodes: [
       () => Promise.resolve().then(() => (init__(), __exports)),
       () => Promise.resolve().then(() => (init__2(), __exports2)),
