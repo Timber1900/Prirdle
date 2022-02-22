@@ -28,6 +28,12 @@
     }
   }
 
+  const addToGuess = (n: number) => {
+    if (curGuess.length < 5 && !guessed) {
+      curGuess += `${n}`;
+    }
+  };
+
   const getValues = (pg: string[], cg: string) => {
     let final = [];
 
@@ -137,6 +143,9 @@
     <div class="grid grid-cols-3 grid-rows-3 gap-2 w-[145px] mx-auto">
       {#each keypad as digit, i}
         <div
+          on:click={() => {
+            addToGuess(digit);
+          }}
           class={`w-[43px] h-[58px] rounded text-xl font-semibold flex items-center justify-center  ${
             keypadColors[i + 1] === 0
               ? 'bg-[#538d4e]'
@@ -153,11 +162,20 @@
     </div>
     <div class="flex flex-row gap-2 mt-2">
       <div
+        on:click={() => {
+          if (curGuess.length === 5 && primes.includes(parseInt(curGuess))) {
+            pastGuesses.push(curGuess);
+            curGuess = '';
+          }
+        }}
         class="w-[100px] h-[58px] rounded text-xl font-semibold flex items-center justify-center bg-[#818384]"
       >
         Enter
       </div>
       <div
+        on:click={() => {
+          addToGuess(0);
+        }}
         class={`w-[43px] h-[58px] rounded text-xl font-semibold flex items-center justify-center ${
           keypadColors[0] === 0
             ? 'bg-[#538d4e]'
@@ -171,6 +189,9 @@
         0
       </div>
       <div
+        on:click={() => {
+          curGuess = curGuess.substring(0, curGuess.length - 1);
+        }}
         class="w-[100px] h-[58px] rounded text-xl font-semibold flex items-center justify-center bg-[#818384]"
       >
         Backspace
