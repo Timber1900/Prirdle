@@ -5414,7 +5414,7 @@ var init_install_fetch = __esm({
   }
 });
 
-// .svelte-kit/output/server/chunks/index-3888377a.js
+// .svelte-kit/output/server/chunks/index-26d252ac.js
 function noop2() {
 }
 function run(fn) {
@@ -5435,6 +5435,10 @@ function subscribe(store, ...callbacks) {
   }
   const unsub = store.subscribe(...callbacks);
   return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
+}
+function set_store_value(store, ret, value) {
+  store.set(value);
+  return ret;
 }
 function set_current_component(component) {
   current_component = component;
@@ -5505,8 +5509,8 @@ function add_attribute(name, value, boolean) {
   return ` ${name}${value === true && boolean_attributes.has(name) ? "" : `=${typeof value === "string" ? JSON.stringify(escape(value)) : `"${value}"`}`}`;
 }
 var current_component, boolean_attributes, escaped, missing_component, on_destroy;
-var init_index_3888377a = __esm({
-  ".svelte-kit/output/server/chunks/index-3888377a.js"() {
+var init_index_26d252ac = __esm({
+  ".svelte-kit/output/server/chunks/index-26d252ac.js"() {
     Promise.resolve();
     boolean_attributes = /* @__PURE__ */ new Set([
       "allowfullscreen",
@@ -5547,7 +5551,7 @@ var init_index_3888377a = __esm({
   }
 });
 
-// .svelte-kit/output/server/chunks/store-8af1e91e.js
+// .svelte-kit/output/server/chunks/store-e62b2b40.js
 function writable2(value, start = noop2) {
   let stop;
   const subscribers = /* @__PURE__ */ new Set();
@@ -5589,12 +5593,15 @@ function writable2(value, start = noop2) {
   }
   return { set, update, subscribe: subscribe2 };
 }
-var subscriber_queue2, show;
-var init_store_8af1e91e = __esm({
-  ".svelte-kit/output/server/chunks/store-8af1e91e.js"() {
-    init_index_3888377a();
+var subscriber_queue2, show, curBoard, stats, infos;
+var init_store_e62b2b40 = __esm({
+  ".svelte-kit/output/server/chunks/store-e62b2b40.js"() {
+    init_index_26d252ac();
     subscriber_queue2 = [];
     show = writable2(false);
+    curBoard = writable2();
+    stats = writable2();
+    infos = writable2([]);
   }
 });
 
@@ -5603,11 +5610,11 @@ var layout_svelte_exports = {};
 __export(layout_svelte_exports, {
   default: () => _layout
 });
-var Modal, Popup, _layout;
+var Modal, Popup, Info, _layout;
 var init_layout_svelte = __esm({
   ".svelte-kit/output/server/entries/pages/__layout.svelte.js"() {
-    init_index_3888377a();
-    init_store_8af1e91e();
+    init_index_26d252ac();
+    init_store_e62b2b40();
     Modal = create_ssr_component(($$result, $$props, $$bindings, slots) => {
       let { show: show2 } = $$props;
       let { exit } = $$props;
@@ -5618,19 +5625,73 @@ var init_layout_svelte = __esm({
       return `<div${add_attribute("class", `absolute z-10 bg-black  w-screen h-screen transition-all ${show2 ? "visible pointer-events-auto opacity-40" : "invisible pointer-events-none opacity-0"}`, 0)}></div>`;
     });
     Popup = create_ssr_component(($$result, $$props, $$bindings, slots) => {
-      let { show: show2 } = $$props;
-      if ($$props.show === void 0 && $$bindings.show && show2 !== void 0)
-        $$bindings.show(show2);
-      return `<div${add_attribute("class", `w-[500px] h-[450px] bg-[#121213] rounded-md absolute inset-0 m-auto z-20  origin-bottom transition-all animate-fly ${show2 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`, 0)}>Test
-  </div>`;
+      let guessesArray;
+      let $stats, $$unsubscribe_stats;
+      let $$unsubscribe_show;
+      let $curBoard, $$unsubscribe_curBoard;
+      $$unsubscribe_stats = subscribe(stats, (value) => $stats = value);
+      $$unsubscribe_show = subscribe(show, (value) => value);
+      $$unsubscribe_curBoard = subscribe(curBoard, (value) => $curBoard = value);
+      let { _show } = $$props;
+      const getTimeToNextDay = () => {
+        const now = new Date();
+        const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        const diff = nextDay.getTime() - now.getTime();
+        const hours = Math.floor(diff / (1e3 * 60 * 60));
+        const minutes = Math.floor(diff / (1e3 * 60)) % 60;
+        const seconds = Math.floor(diff / 1e3) % 60;
+        return `${hours < 10 ? `0${hours.toFixed(0)}` : hours.toFixed(0)}:${minutes < 10 ? `0${minutes.toFixed(0)}` : minutes.toFixed(0)}:${seconds < 10 ? `0${seconds.toFixed(0)}` : seconds.toFixed(0)}`;
+      };
+      let time = getTimeToNextDay();
+      if ($$props._show === void 0 && $$bindings._show && _show !== void 0)
+        $$bindings._show(_show);
+      guessesArray = [...Object.entries(($stats == null ? void 0 : $stats.guesses) ?? {})];
+      $$unsubscribe_stats();
+      $$unsubscribe_show();
+      $$unsubscribe_curBoard();
+      return `<div${add_attribute("class", `border border-[#1a1a1b] sm:w-[500px] h-max sm:aspect-auto w-11/12 aspect-square sm:aspect-auto bg-[#121213] rounded-md absolute inset-0 m-auto z-20  origin-bottom transition-all flex items-center justify-center${_show ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-0"}`, 0)}><div class="${"sm:w-[500px] sm:aspect-auto w-11/12 aspect-square relative flex flex-col text-white px-2 py-4 items-center justify-center mx-auto"}"><span class="${"absolute top-4 right-4 aspect-square"}"><svg xmlns="${"http://www.w3.org/2000/svg"}" height="${"24"}" viewBox="${"0 0 24 24"}" width="${"24"}"><path fill="${"#fff"}" d="${"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"}"></path></svg></span>
+    <span class="${"m-3 flex items-center justify-center h-5 text-lg font-semibold"}">STATISTICS
+    </span>
+    <span class="${"flex items-center justify-center h-20 flex-row items-center justify-center gap-2"}"><div class="${"flex flex-col w-14 h-[70px]"}"><span class="${"text-4xl font-semibold flex items-center justify-center"}">${escape($stats == null ? void 0 : $stats.played)}</span>
+        <span class="${"text-xs flex items-center justify-center text-center"}">Played</span></div>
+      <div class="${"flex flex-col w-14 h-[70px]"}"><span class="${"text-4xl font-semibold flex items-center justify-center"}">${escape(($stats == null ? void 0 : $stats.played) ? (100 * ($stats == null ? void 0 : $stats.wins) / ($stats == null ? void 0 : $stats.played)).toFixed(0) : 0)}</span>
+        <span class="${"text-xs flex items-center justify-center text-center"}">Win %</span></div>
+      <div class="${"flex flex-col w-14 h-[70px]"}"><span class="${"text-4xl font-semibold flex items-center justify-center"}">${escape($stats == null ? void 0 : $stats.streak)}</span>
+        <span class="${"text-xs flex items-center justify-center text-center"}">Current Streak
+        </span></div>
+      <div class="${"flex flex-col w-14 h-[70px]"}"><span class="${"text-4xl font-semibold flex items-center justify-center"}">${escape($stats == null ? void 0 : $stats.maxStreak)}</span>
+        <span class="${"text-xs flex items-center justify-center text-center"}">Max Streak</span></div></span>
+    <span class="${"m-3 flex items-center justify-center h-5 text-lg font-semibold"}">GUESS DISTRIBUTION
+    </span>
+    <span class="${"flex flex-col items-center justify-center h-56 w-full px-14"}">${each(guessesArray, (guess) => {
+        return `${guess[0] !== "fail" ? `<span class="${"flex flex-row w-full"}"><span>${escape(guess[0])}</span>
+            <span class="${"bg-[#3a3a3c] my-[2px] mx-2 px-2 rounded-sm"}"${add_attribute("style", `width: ${guess[1] * 100 / $stats.wins}%`, 0)}><p class="${"ml-auto w-min"}">${escape(guess[1])}</p></span>
+          </span>` : ``}`;
+      })}</span>
+    ${($curBoard == null ? void 0 : $curBoard.hasGuessed) ? `<span class="${"divide-x-2 divide-white grid w-full grid-cols-2 grid-rows-1"}"><div class="${"flex flex-col gap-2"}"><span class="${"small:text-lg text-sm font-semibold uppercase text-cente flex items-center justify-center"}">Next Prirdle</span>
+          <span class="${"small:text-4xl text-2xl font-semibold uppercase text-cente flex items-center justify-center"}">${escape(time)}</span></div>
+        <div class="${"w-full h-full flex items-center justify-center"}"><button class="${"bg-[#538d4e] hover:bg-[#4c8048] small:px-6 small:py-2 px-4 py-2 small:text-2xl text-lg font-semibold rounded-md flex flex-row gap-4 items-center justify-center"}"><p class="${"h-full"}">Share</p>
+            <svg xmlns="${"http://www.w3.org/2000/svg"}" viewBox="${"0 0 24 24"}" class="${"small:h-[24px] small:w-[24px] w-[16px] h-[16px]"}"><path fill="${"#fff"}" d="${"M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 7.02c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"}"></path></svg></button></div></span>` : ``}</div></div>`;
+    });
+    Info = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+      let $infos, $$unsubscribe_infos;
+      $$unsubscribe_infos = subscribe(infos, (value) => $infos = value);
+      $$unsubscribe_infos();
+      return `<div class="${"absolute inset-0 h-full mx-auto pointer-events-none pt-20"}">${each($infos, (info) => {
+        return `<div class="${"text-black text-10xl font-bold mx-auto my-2 min-w-[8rem] w-max h-12 p-4 bg-white rounded-md flex items-center justify-center"}">${escape(info)}
+    </div>`;
+      })}</div>`;
     });
     _layout = create_ssr_component(($$result, $$props, $$bindings, slots) => {
       let $show, $$unsubscribe_show;
       $$unsubscribe_show = subscribe(show, (value) => $show = value);
       $$unsubscribe_show();
-      return `<div class="${"relative z-0"}">${validate_component(Modal, "Modal").$$render($$result, { show: $show, exit: () => $show = !$show }, {}, {})}
-  ${validate_component(Popup, "Popup").$$render($$result, { show: $show }, {}, {})}
-  <div${add_attribute("class", `${$show ? "blur-[1px]" : "blur-none"} transition-all`, 0)}>${slots.default ? slots.default({}) : ``}</div></div>`;
+      return `${$$result.head += `${$$result.title = `<title>Prirdle</title>`, ""}`, ""}
+
+<div class="${"relative z-0 w-full h-full"}">${validate_component(Modal, "Modal").$$render($$result, { show: $show, exit: () => $show = !$show }, {}, {})}
+  ${validate_component(Popup, "Popup").$$render($$result, { _show: $show }, {}, {})}
+  ${validate_component(Info, "Info").$$render($$result, {}, {}, {})}
+  ${slots.default ? slots.default({}) : ``}</div>`;
     });
   }
 });
@@ -5647,9 +5708,9 @@ var entry, js, css;
 var init__ = __esm({
   ".svelte-kit/output/server/nodes/0.js"() {
     init_layout_svelte();
-    entry = "pages/__layout.svelte-ef59f802.js";
-    js = ["pages/__layout.svelte-ef59f802.js", "chunks/vendor-491a3ca6.js", "chunks/store-0bbced0d.js"];
-    css = ["assets/pages/__layout.svelte-5b20b49f.css"];
+    entry = "pages/__layout.svelte-1a89a5b6.js";
+    js = ["pages/__layout.svelte-1a89a5b6.js", "chunks/vendor-5b2229b3.js", "chunks/store-3a7a80e9.js"];
+    css = ["assets/pages/__layout.svelte-8356d6b6.css"];
   }
 });
 
@@ -5665,7 +5726,7 @@ function load({ error: error2, status }) {
 var Error2;
 var init_error_svelte = __esm({
   ".svelte-kit/output/server/entries/pages/error.svelte.js"() {
-    init_index_3888377a();
+    init_index_26d252ac();
     Error2 = create_ssr_component(($$result, $$props, $$bindings, slots) => {
       let { status } = $$props;
       let { error: error2 } = $$props;
@@ -5697,8 +5758,8 @@ var entry2, js2, css2;
 var init__2 = __esm({
   ".svelte-kit/output/server/nodes/1.js"() {
     init_error_svelte();
-    entry2 = "error.svelte-94f7314d.js";
-    js2 = ["error.svelte-94f7314d.js", "chunks/vendor-491a3ca6.js"];
+    entry2 = "error.svelte-607840a2.js";
+    js2 = ["error.svelte-607840a2.js", "chunks/vendor-5b2229b3.js"];
     css2 = [];
   }
 });
@@ -5708,17 +5769,27 @@ var index_svelte_exports = {};
 __export(index_svelte_exports, {
   default: () => Routes
 });
-var rightGuess, Routes;
+function daysIntoYear(date) {
+  return (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(date.getFullYear(), 0, 0)) / 24 / 60 / 60 / 1e3;
+}
+var Routes;
 var init_index_svelte = __esm({
   ".svelte-kit/output/server/entries/pages/index.svelte.js"() {
-    init_index_3888377a();
-    init_store_8af1e91e();
-    rightGuess = "12959";
+    init_index_26d252ac();
+    init_store_e62b2b40();
     Routes = create_ssr_component(($$result, $$props, $$bindings, slots) => {
       let values;
       let colors;
-      let $$unsubscribe_show;
-      $$unsubscribe_show = subscribe(show, (value) => value);
+      let $curBoard, $$unsubscribe_curBoard;
+      let $stats, $$unsubscribe_stats;
+      let $infos, $$unsubscribe_infos;
+      let $show, $$unsubscribe_show;
+      $$unsubscribe_curBoard = subscribe(curBoard, (value) => $curBoard = value);
+      $$unsubscribe_stats = subscribe(stats, (value) => $stats = value);
+      $$unsubscribe_infos = subscribe(infos, (value) => $infos = value);
+      $$unsubscribe_show = subscribe(show, (value) => $show = value);
+      let rightGuess;
+      let guessed;
       let keypad = [1, 2, 3, 4, 5, 6, 7, 8, 9];
       let keypadColors = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
       const temp = new Array(35);
@@ -5754,36 +5825,126 @@ var init_index_svelte = __esm({
             }
           });
           final = [...final, ...tempFinal];
-          console.log(tempFinal);
           if (tempFinal.reduce((a, b) => a + b, 0) === 0)
-            ;
+            endGame(true);
         });
+        if (pastGuesses.length === 7 && !guessed)
+          endGame(false);
         [...curGuess].forEach((char, i2) => {
-          final.push(2);
+          final.push(3);
         });
         return final;
       };
+      const endGame = (win) => {
+        guessed = true;
+        const temp_stats = $stats;
+        if (daysIntoYear(new Date()) !== temp_stats.lastDayAdded) {
+          temp_stats.played++;
+          temp_stats.lastDayAdded = daysIntoYear(new Date());
+          if (win) {
+            temp_stats.wins++;
+            temp_stats.streak++;
+            if (temp_stats.streak > temp_stats.maxStreak)
+              temp_stats.maxStreak = temp_stats.streak;
+            temp_stats.guesses[pastGuesses.length.toString()]++;
+          } else {
+            temp_stats.streak = 0;
+            temp_stats.guesses.fail++;
+          }
+          localStorage.setItem("board-stats", JSON.stringify(temp_stats));
+          set_store_value(stats, $stats = temp_stats, $stats);
+        }
+        setTimeout(() => {
+          set_store_value(show, $show = true, $show);
+        }, 1e3);
+        switch (pastGuesses.length) {
+          case 1:
+            set_store_value(infos, $infos = [...$infos, "Prime form"], $infos);
+            setTimeout(() => {
+              set_store_value(infos, $infos = [...$infos.slice(1, $infos.length)], $infos);
+            }, 5e3);
+            break;
+          case 2:
+            set_store_value(infos, $infos = [...$infos, "Magnificent"], $infos);
+            setTimeout(() => {
+              set_store_value(infos, $infos = [...$infos.slice(1, $infos.length)], $infos);
+            }, 5e3);
+            break;
+          case 3:
+            set_store_value(infos, $infos = [...$infos, "Impressive"], $infos);
+            setTimeout(() => {
+              set_store_value(infos, $infos = [...$infos.slice(1, $infos.length)], $infos);
+            }, 5e3);
+            break;
+          case 4:
+            set_store_value(infos, $infos = [...$infos, "Splendid"], $infos);
+            setTimeout(() => {
+              set_store_value(infos, $infos = [...$infos.slice(1, $infos.length)], $infos);
+            }, 5e3);
+            break;
+          case 5:
+            set_store_value(infos, $infos = [...$infos, "Great"], $infos);
+            setTimeout(() => {
+              set_store_value(infos, $infos = [...$infos.slice(1, $infos.length)], $infos);
+            }, 5e3);
+            break;
+          case 6:
+            set_store_value(infos, $infos = [...$infos, "Phew"], $infos);
+            setTimeout(() => {
+              set_store_value(infos, $infos = [...$infos.slice(1, $infos.length)], $infos);
+            }, 5e3);
+            break;
+          case 7:
+            if (win) {
+              set_store_value(infos, $infos = [...$infos, "Ouch"], $infos);
+              setTimeout(() => {
+                set_store_value(infos, $infos = [...$infos.slice(1, $infos.length)], $infos);
+              }, 5e3);
+            } else {
+              set_store_value(infos, $infos = [...$infos, rightGuess], $infos);
+              setTimeout(() => {
+                set_store_value(infos, $infos = [...$infos.slice(1, $infos.length)], $infos);
+              }, 5e3);
+            }
+            break;
+        }
+      };
+      const updateCurBoard = (pg, cg, g) => {
+        if ($curBoard) {
+          set_store_value(curBoard, $curBoard.hasGuessed = g, $curBoard);
+          set_store_value(curBoard, $curBoard.boardState = pg, $curBoard);
+          set_store_value(curBoard, $curBoard.colors = colors, $curBoard);
+          localStorage.setItem("cur-board", JSON.stringify($curBoard));
+        }
+      };
       values = getValues();
       colors = getColors();
+      {
+        {
+          updateCurBoard(pastGuesses, curGuess, guessed);
+        }
+      }
+      $$unsubscribe_curBoard();
+      $$unsubscribe_stats();
+      $$unsubscribe_infos();
       $$unsubscribe_show();
       return `
 
-<div class="${"w-screen h-screen bg-[#121213] flex flex-col justify-center items-center text-white"}"><header class="${"h-14 w-full flex items-center justify-center font-sans text-3xl font-semibold border-b border-[#3a3a3c]"}"><p class="${"mx-auto"}">Prirdle</p>
-    <span class="${"mx-2 text-white"}"><svg xmlns="${"http://www.w3.org/2000/svg"}" height="${"24"}" viewBox="${"0 0 24 24"}" width="${"24"}" fill="${"#fff"}"><path d="${"M16,11V3H8v6H2v12h20V11H16z M10,5h4v14h-4V5z M4,11h4v8H4V11z M20,19h-4v-6h4V19z"}"></path></svg></span></header>
-  <main class="${"w-full grow"}"><div class="${"small:w-[320px] w-[240px] h-full mx-auto flex items-center justify-center"}"><div class="${"grid grid-cols-5 grid-rows-7 small:w-[320px] w-[240px] small:h-[448px] h-[336px] text-center"}">${each(temp, (_, i2) => {
-        return `<div${add_attribute("class", `small:w-[62px] small:h-[62px] w-[46.5px] h-[46.5px] flex items-center justify-center border-2 text-3xl font-semibold ${values[i2] ? "border-[#565758] animate-scale" : "border-[#3a3a3c] animate-none"} ${colors[i2] === 0 ? "bg-[#538d4e]" : colors[i2] === 1 ? "bg-[#B59F3B]" : ""}`, 0)}>${escape(values[i2] ?? "")}
+<div class="${"w-screen h-full bg-[#121213] flex flex-col justify-center items-center text-white"}"><header class="${"relative h-14 w-full flex items-center justify-center font-sans text-3xl font-semibold border-b border-[#3a3a3c]"}"><p class="${"mx-auto"}">Prirdle</p>
+    <span class="${"absolute inset-y-auto right-2 text-white"}"><svg xmlns="${"http://www.w3.org/2000/svg"}" height="${"24"}" viewBox="${"0 0 24 24"}" width="${"24"}" fill="${"#fff"}"><path d="${"M16,11V3H8v6H2v12h20V11H16z M10,5h4v14h-4V5z M4,11h4v8H4V11z M20,19h-4v-6h4V19z"}"></path></svg></span></header>
+  <main class="${"w-full grow"}"><div class="${"small:w-[320px] w-[240px] w-[calc(75vw+16px)] h-full mx-auto flex items-center justify-center"}"><div class="${"grid grid-cols-5 grid-rows-7 small:w-[320px] w-[calc(75vw+16px)] small:h-[448px] h-[calc(105vw+16px)] text-center"}">${each(temp, (_, i2) => {
+        return `<div${add_attribute("class", `small:w-[62px] small:h-[62px] w-[15vw] aspect-square small:aspect-auto flex items-center justify-center  text-3xl font-semibold ${colors[i2] === 2 || colors[i2] === 1 || colors[i2] === 0 ? "border-none animate-none" : values[i2] ? "border-2 border-[#565758] animate-scale" : "border-2 border-[#3a3a3c] animate-none"} ${colors[i2] === 0 ? "bg-[#538d4e]" : colors[i2] === 1 ? "bg-[#B59F3B]" : colors[i2] === 2 ? "bg-[#3a3a3c]" : ""}`, 0)}>${escape(values[i2] ?? "")}
             </div>`;
       })}</div></div></main>
-  <footer class="${"mb-2"}"><div class="${"grid grid-cols-3 grid-rows-3 gap-2 w-[145px] mx-auto"}">${each(keypad, (digit, i2) => {
-        return `<div${add_attribute("class", `w-[43px] h-[58px] rounded text-xl font-semibold flex items-center justify-center  ${keypadColors[i2 + 1] === 0 ? "bg-[#538d4e]" : keypadColors[i2 + 1] === 1 ? "bg-[#B59F3B]" : keypadColors[i2 + 1] === 3 ? "bg-[#3a3a3c]" : "bg-[#818384]"}`, 0)}>${escape(digit)}
+  <footer class="${"mb-2"}"><div class="${"grid grid-cols-3 grid-rows-3 gap-2 small:w-[145px] w-[calc(30vw+16px)] mx-auto"}">${each(keypad, (digit, i2) => {
+        return `<div${add_attribute("class", `small:w-[43px] small:h-[58px] aspect-[43/58] w-[10vw] rounded small:text-xl text-base font-semibold flex items-center justify-center  ${keypadColors[i2 + 1] === 0 ? "bg-[#538d4e]" : keypadColors[i2 + 1] === 1 ? "bg-[#B59F3B]" : keypadColors[i2 + 1] === 3 ? "bg-[#3a3a3c]" : "bg-[#818384]"}`, 0)}>${escape(digit)}
         </div>`;
       })}</div>
-    <div class="${"flex flex-row gap-2 mt-2"}"><div class="${"w-[100px] h-[58px] rounded text-xl font-semibold flex items-center justify-center bg-[#818384]"}">Enter
+    <div class="${"flex flex-row gap-2 mt-2"}"><div class="${"small:w-[100px] small:h-[58px] aspect-[100/58] w-[20vw] rounded small:text-xl text-base font-semibold flex items-center justify-center bg-[#818384]"}">Enter
       </div>
-      <div${add_attribute("class", `w-[43px] h-[58px] rounded text-xl font-semibold flex items-center justify-center ${keypadColors[0] === 0 ? "bg-[#538d4e]" : keypadColors[0] === 1 ? "bg-[#B59F3B]" : keypadColors[0] === 3 ? "bg-[#3a3a3c]" : "bg-[#818384]"}`, 0)}>0
+      <div${add_attribute("class", `small:w-[43px] small:h-[58px] aspect-[43/58] w-[10vw] rounded small:text-xl text-base font-semibold flex items-center justify-center ${keypadColors[0] === 0 ? "bg-[#538d4e]" : keypadColors[0] === 1 ? "bg-[#B59F3B]" : keypadColors[0] === 3 ? "bg-[#3a3a3c]" : "bg-[#818384]"}`, 0)}>0
       </div>
-      <div class="${"w-[100px] h-[58px] rounded text-xl font-semibold flex items-center justify-center bg-[#818384]"}">Backspace
-      </div></div></footer></div>`;
+      <div class="${"small:w-[100px] small:h-[58px] aspect-[100/58] w-[20vw] rounded small:text-xl text-base font-semibold flex items-center justify-center bg-[#818384]"}"><svg xmlns="${"http://www.w3.org/2000/svg"}" height="${"24"}" viewBox="${"0 0 24 24"}" width="${"24"}"><path fill="${"#fff"}" d="${"M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H7.07L2.4 12l4.66-7H22v14zm-11.59-2L14 13.41 17.59 17 19 15.59 15.41 12 19 8.41 17.59 7 14 10.59 10.41 7 9 8.41 12.59 12 9 15.59z"}"></path></svg></div></div></footer></div>`;
     });
   }
 });
@@ -5800,8 +5961,8 @@ var entry3, js3, css3;
 var init__3 = __esm({
   ".svelte-kit/output/server/nodes/2.js"() {
     init_index_svelte();
-    entry3 = "pages/index.svelte-41ded4b3.js";
-    js3 = ["pages/index.svelte-41ded4b3.js", "chunks/vendor-491a3ca6.js", "chunks/store-0bbced0d.js"];
+    entry3 = "pages/index.svelte-72373def.js";
+    js3 = ["pages/index.svelte-72373def.js", "chunks/vendor-5b2229b3.js", "chunks/store-3a7a80e9.js"];
     css3 = [];
   }
 });
@@ -5888,7 +6049,7 @@ async function setResponse(res, response) {
 }
 
 // .svelte-kit/output/server/index.js
-init_index_3888377a();
+init_index_26d252ac();
 var __accessCheck2 = (obj, member, msg) => {
   if (!member.has(obj))
     throw TypeError("Cannot " + msg);
@@ -7799,7 +7960,10 @@ var user_hooks = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   [Symbol.toStringTag]: "Module"
 });
-var template = ({ head, body, assets: assets2, nonce }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<meta name="description" content="" />\n		<link rel="icon" href="' + assets2 + '/favicon.png" />\n		<meta name="viewport" content="width=device-width, initial-scale=1">\n		' + head + "\n	</head>\n	<body>\n		<div>" + body + "</div>\n	</body>\n</html>\n";
+var template = ({ head, body, assets: assets2, nonce }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<meta name="description" content="" />\n		<link rel="icon" href="' + assets2 + `/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel='manifest' href='manifest.webmanifest'>
+		` + head + "\n	</head>\n	<body>\n		" + body + "\n	</body>\n</html>\n";
 var read = null;
 set_paths({ "base": "", "assets": "" });
 var get_hooks = (hooks) => ({
@@ -7836,7 +8000,7 @@ var Server = class {
       prerender: true,
       read,
       root: Root,
-      service_worker: null,
+      service_worker: base + "/service-worker.js",
       router: true,
       template,
       template_contains_nonce: false,
@@ -7854,10 +8018,10 @@ var Server = class {
 // .svelte-kit/vercel-tmp/manifest.js
 var manifest = {
   appDir: "_app",
-  assets: /* @__PURE__ */ new Set(["favicon.png", "primes.txt"]),
+  assets: /* @__PURE__ */ new Set(["favicon.png", "icon-192x192.png", "icon-256x256.png", "icon-384x384.png", "icon-512x512.png", "manifest.webmanifest", "primes.txt", "service-worker.js"]),
   _: {
-    mime: { ".png": "image/png", ".txt": "text/plain" },
-    entry: { "file": "start-bcdbdf9b.js", "js": ["start-bcdbdf9b.js", "chunks/vendor-491a3ca6.js"], "css": [] },
+    mime: { ".png": "image/png", ".webmanifest": "application/manifest+json", ".txt": "text/plain" },
+    entry: { "file": "start-32e71a0f.js", "js": ["start-32e71a0f.js", "chunks/vendor-5b2229b3.js"], "css": [] },
     nodes: [
       () => Promise.resolve().then(() => (init__(), __exports)),
       () => Promise.resolve().then(() => (init__2(), __exports2)),

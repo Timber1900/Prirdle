@@ -157,17 +157,17 @@
       <span class="divide-x-2 divide-white grid w-full grid-cols-2 grid-rows-1">
         <div class="flex flex-col gap-2">
           <span
-            class="smallish:text-lg text-sm font-semibold uppercase text-cente flex items-center justify-center"
+            class="small:text-lg text-sm font-semibold uppercase text-cente flex items-center justify-center"
             >Next Prirdle</span
           >
           <span
-            class="smallish:text-4xl text-2xl font-semibold uppercase text-cente flex items-center justify-center"
+            class="small:text-4xl text-2xl font-semibold uppercase text-cente flex items-center justify-center"
             >{time}</span
           >
         </div>
         <div class="w-full h-full flex items-center justify-center">
           <button
-            class="bg-[#538d4e] hover:bg-[#4c8048] smallish:px-6 smallish:py-2 px-4 py-2 smallish:text-2xl text-lg font-semibold rounded-md flex flex-row gap-4 items-center justify-center"
+            class="bg-[#538d4e] hover:bg-[#4c8048] small:px-6 small:py-2 px-4 py-2 small:text-2xl text-lg font-semibold rounded-md flex flex-row gap-4 items-center justify-center"
             on:click={() => {
               const shareString = createShareString(
                 daysIntoYear(new Date()),
