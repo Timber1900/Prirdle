@@ -14,7 +14,7 @@ module.exports = {
         },
       },
       screens: {
-        'small': '360px',
+        'small': '400px',
         'smallish': '400px',
       },
       animation: {
