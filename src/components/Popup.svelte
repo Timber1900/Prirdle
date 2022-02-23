@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { createShareString } from '../logic/createShareString';
   export let _show: boolean;
-  import { stats, curBoard, show } from '../store';
+  import { stats, curBoard, show, infos } from '../store';
 
   const getTimeToNextDay = () => {
     //calculate time to next day
@@ -184,7 +184,13 @@
                     };
                     navigator.share(shareData);
                   } else {
-                    navigator.clipboard.writeText(shareString);
+                    $infos = [...$infos, 'Copied to clipboard.'];
+                    setTimeout(() => {
+                      $infos = [...$infos.slice(1, $infos.length)];
+                    }, 5000);
+                    navigator.clipboard.writeText(
+                      shareString + '\nhttps://www.prirdle.com'
+                    );
                   }
                 }
               }
