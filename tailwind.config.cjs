@@ -15,6 +15,7 @@ module.exports = {
       },
       screens: {
         'small': '360px',
+        'smallish': '400px',
       },
       animation: {
         scale: 'scale 0.1s ease-in-out',

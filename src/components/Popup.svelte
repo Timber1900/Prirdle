@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { createShareString } from '../logic/createShareString';
-  export let show: boolean;
-  import { stats, curBoard } from '../store';
+  export let _show: boolean;
+  import { stats, curBoard, show } from '../store';
 
   const getTimeToNextDay = () => {
     //calculate time to next day
@@ -64,7 +64,7 @@
 
 <div
   class={`border border-[#1a1a1b] sm:w-[500px] h-max sm:aspect-auto w-11/12 aspect-square sm:aspect-auto bg-[#121213] rounded-md absolute inset-0 m-auto z-20  origin-bottom transition-all flex items-center justify-center${
-    show
+    _show
       ? 'opacity-100 pointer-events-auto scale-100'
       : 'opacity-0 pointer-events-none scale-0'
   }`}
@@ -72,7 +72,12 @@
   <div
     class="sm:w-[500px] sm:aspect-auto w-11/12 aspect-square relative flex flex-col text-white px-2 py-4 items-center justify-center mx-auto"
   >
-    <span class="absolute top-4 right-4 aspect-square">
+    <span
+      class="absolute top-4 right-4 aspect-square"
+      on:click={() => {
+        $show = false;
+      }}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         height="24"
@@ -103,7 +108,9 @@
       </div>
       <div class="flex flex-col w-14 h-[70px]">
         <span class="text-4xl font-semibold flex items-center justify-center">
-          {((100 * $stats?.wins) / $stats?.played).toFixed(0)}
+          {$stats?.played
+            ? ((100 * $stats?.wins) / $stats?.played).toFixed(0)
+            : 0}
         </span>
         <span class="text-xs flex items-center justify-center text-center"
           >Win %</span
@@ -134,13 +141,13 @@
     <span class="flex flex-col items-center justify-center h-56 w-full px-14">
       {#each guessesArray as guess}
         {#if guess[0] !== 'fail'}
-          <span class="flex flex-row w-full ">
+          <span class="flex flex-row w-full">
             <span>{guess[0]}</span>
             <span
-              class="bg-[#3a3a3c] my-[2px] mx-2 rounded-sm"
-              style={`width: ${(guess[1] * 93) / $stats.wins + 7}%`}
+              class="bg-[#3a3a3c] my-[2px] mx-2 px-2 rounded-sm"
+              style={`width: ${(guess[1] * 100) / $stats.wins}%`}
             >
-              <p class="ml-auto w-min mr-2">{guess[1]}</p>
+              <p class="ml-auto w-min">{guess[1]}</p>
             </span>
           </span>
         {/if}
@@ -150,17 +157,17 @@
       <span class="divide-x-2 divide-white grid w-full grid-cols-2 grid-rows-1">
         <div class="flex flex-col gap-2">
           <span
-            class="text-lg font-semibold uppercase text-cente flex items-center justify-center"
+            class="smallish:text-lg text-sm font-semibold uppercase text-cente flex items-center justify-center"
             >Next Prirdle</span
           >
           <span
-            class="text-4xl font-semibold uppercase text-cente flex items-center justify-center"
+            class="smallish:text-4xl text-2xl font-semibold uppercase text-cente flex items-center justify-center"
             >{time}</span
           >
         </div>
         <div class="w-full h-full flex items-center justify-center">
           <button
-            class="bg-[#538d4e] hover:bg-[#4c8048] px-6 py-2 text-2xl font-semibold rounded-md flex flex-row gap-4 items-center justify-center"
+            class="bg-[#538d4e] hover:bg-[#4c8048] smallish:px-6 smallish:py-2 px-4 py-2 smallish:text-2xl text-lg font-semibold rounded-md flex flex-row gap-4 items-center justify-center"
             on:click={() => {
               const shareString = createShareString(
                 daysIntoYear(new Date()),
@@ -186,10 +193,8 @@
             <p class="h-full">Share</p>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              height="24"
               viewBox="0 0 24 24"
-              width="24"
-              class="h-full"
+              class="small:h-[24px] small:w-[24px] w-[16px] h-[16px]"
             >
               <path
                 fill="#fff"

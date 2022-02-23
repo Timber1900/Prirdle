@@ -1,6 +1,6 @@
 <script lang="ts">
   import { DAY_SKIP, primes, shuffled_primes } from '../constants';
-  import { show, curBoard, stats } from '../store';
+  import { show, curBoard, stats, infos } from '../store';
   import { onMount } from 'svelte';
 
   let rightGuess;
@@ -30,6 +30,11 @@
     ) {
       pastGuesses.push(curGuess);
       curGuess = '';
+    } else if (key === 'Enter' && curGuess.length === 5) {
+      $infos = [...$infos, 'Not in prime list'];
+      setTimeout(() => {
+        $infos = [...$infos.slice(1, $infos.length)];
+      }, 1000);
     }
   }
   const addToGuess = (n: number) => {
@@ -77,7 +82,7 @@
       if (tempFinal.reduce((a, b) => a + b, 0) === 0) endGame(true);
     });
 
-    if (pastGuesses.length === 7) endGame(false);
+    if (pastGuesses.length === 7 && !guessed) endGame(false);
 
     [...curGuess].forEach((char, i) => {
       final.push(3);
@@ -105,6 +110,63 @@
       }
 
       localStorage.setItem('board-stats', JSON.stringify(temp_stats));
+      $stats = temp_stats;
+    }
+
+    setTimeout(() => {
+      $show = true;
+    }, 1000);
+
+    switch (pastGuesses.length) {
+      case 1:
+        $infos = [...$infos, 'Prime form'];
+        setTimeout(() => {
+          $infos = [...$infos.slice(1, $infos.length)];
+        }, 5000);
+        break;
+      case 2:
+        $infos = [...$infos, 'Magnificent'];
+        setTimeout(() => {
+          $infos = [...$infos.slice(1, $infos.length)];
+        }, 5000);
+        break;
+      case 3:
+        $infos = [...$infos, 'Impressive'];
+        setTimeout(() => {
+          $infos = [...$infos.slice(1, $infos.length)];
+        }, 5000);
+        break;
+      case 4:
+        $infos = [...$infos, 'Splendid'];
+        setTimeout(() => {
+          $infos = [...$infos.slice(1, $infos.length)];
+        }, 5000);
+        break;
+      case 5:
+        $infos = [...$infos, 'Great'];
+        setTimeout(() => {
+          $infos = [...$infos.slice(1, $infos.length)];
+        }, 5000);
+        break;
+      case 6:
+        $infos = [...$infos, 'Phew'];
+        setTimeout(() => {
+          $infos = [...$infos.slice(1, $infos.length)];
+        }, 5000);
+        break;
+      case 7:
+        if (win) {
+          $infos = [...$infos, 'Ouch'];
+          setTimeout(() => {
+            $infos = [...$infos.slice(1, $infos.length)];
+          }, 5000);
+        } else {
+          $infos = [...$infos, rightGuess];
+          setTimeout(() => {
+            $infos = [...$infos.slice(1, $infos.length)];
+          }, 5000);
+        }
+        break;
     }
   };
 
@@ -206,10 +268,13 @@
   class="w-screen h-full bg-[#121213]  flex flex-col justify-center items-center text-white"
 >
   <header
-    class="h-14 w-full flex items-center justify-center font-sans text-3xl font-semibold border-b border-[#3a3a3c]"
+    class="relative h-14 w-full flex items-center justify-center font-sans text-3xl font-semibold border-b border-[#3a3a3c]"
   >
     <p class="mx-auto">Prirdle</p>
-    <span class="mx-2 text-white" on:click={() => ($show = !$show)}>
+    <span
+      class="absolute inset-y-auto right-2 text-white"
+      on:click={() => ($show = !$show)}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         height="24"
@@ -225,15 +290,15 @@
   </header>
   <main class="w-full grow">
     <div
-      class="small:w-[320px] w-[240px] h-full mx-auto flex items-center justify-center"
+      class="small:w-[320px] w-[240px] w-[calc(75vw+16px)] h-full mx-auto flex items-center justify-center"
     >
       <div
-        class="grid grid-cols-5 grid-rows-7 small:w-[320px] w-[240px] small:h-[448px] h-[336px] text-center"
+        class="grid grid-cols-5 grid-rows-7 small:w-[320px] w-[calc(75vw+16px)] small:h-[448px] h-[calc(105vw+16px)] text-center"
       >
         {#each temp as _, i}
           {#key values[i]}
             <div
-              class={`small:w-[62px] small:h-[62px] w-[46.5px] h-[46.5px] flex items-center justify-center  text-3xl font-semibold ${
+              class={`small:w-[62px] small:h-[62px] w-[15vw] aspect-square small:aspect-auto flex items-center justify-center  text-3xl font-semibold ${
                 colors[i] === 2 || colors[i] === 1 || colors[i] === 0
                   ? 'border-none animate-none'
                   : values[i]
@@ -257,13 +322,15 @@
     </div>
   </main>
   <footer class="mb-2">
-    <div class="grid grid-cols-3 grid-rows-3 gap-2 w-[145px] mx-auto">
+    <div
+      class="grid grid-cols-3 grid-rows-3 gap-2 small:w-[145px] w-[calc(30vw+16px)] mx-auto"
+    >
       {#each keypad as digit, i}
         <div
           on:click={() => {
             addToGuess(digit);
           }}
-          class={`w-[43px] h-[58px] rounded text-xl font-semibold flex items-center justify-center  ${
+          class={`small:w-[43px] small:h-[58px] aspect-[43/58] w-[10vw] rounded small:text-xl text-base font-semibold flex items-center justify-center  ${
             keypadColors[i + 1] === 0
               ? 'bg-[#538d4e]'
               : keypadColors[i + 1] === 1
@@ -285,7 +352,7 @@
             curGuess = '';
           }
         }}
-        class="w-[100px] h-[58px] rounded text-xl font-semibold flex items-center justify-center bg-[#818384]"
+        class="small:w-[100px] small:h-[58px] aspect-[100/58] w-[20vw] rounded small:text-xl text-base font-semibold flex items-center justify-center bg-[#818384]"
       >
         Enter
       </div>
@@ -293,7 +360,7 @@
         on:click={() => {
           addToGuess(0);
         }}
-        class={`w-[43px] h-[58px] rounded text-xl font-semibold flex items-center justify-center ${
+        class={`small:w-[43px] small:h-[58px] aspect-[43/58] w-[10vw] rounded small:text-xl text-base font-semibold flex items-center justify-center ${
           keypadColors[0] === 0
             ? 'bg-[#538d4e]'
             : keypadColors[0] === 1
@@ -309,9 +376,19 @@
         on:click={() => {
           curGuess = curGuess.substring(0, curGuess.length - 1);
         }}
-        class="w-[100px] h-[58px] rounded text-xl font-semibold flex items-center justify-center bg-[#818384]"
+        class="small:w-[100px] small:h-[58px] aspect-[100/58] w-[20vw] rounded small:text-xl text-base font-semibold flex items-center justify-center bg-[#818384]"
       >
-        Backspace
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <path
+            fill="#fff"
+            d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H7.07L2.4 12l4.66-7H22v14zm-11.59-2L14 13.41 17.59 17 19 15.59 15.41 12 19 8.41 17.59 7 14 10.59 10.41 7 9 8.41 12.59 12 9 15.59z"
+          />
+        </svg>
       </div>
     </div>
   </footer>
