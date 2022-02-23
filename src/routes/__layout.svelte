@@ -35,6 +35,7 @@
     content="https://www.prirdle.com/icon-512x512.png"
   />
   <meta name="twitter:creator" content="@timber1901" />
+  <meta name="twitter:card" content="app" />
 </svelte:head>
 
 <div class="relative z-0 w-full h-full">
