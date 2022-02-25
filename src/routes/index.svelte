@@ -8,12 +8,15 @@
 
   let keypad = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   let keypadColors = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+  let animate: boolean[] = new Array(7).fill(false);
+  let _animate: boolean[] = new Array(7).fill(false);
 
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
   }
 
-  const temp = new Array(35);
+  const x_s = new Array(7);
+  const y_s = new Array(5);
   let curGuess = '';
   let pastGuesses: string[] = [];
 
@@ -35,6 +38,9 @@
       setTimeout(() => {
         $infos = [...$infos.slice(1, $infos.length)];
       }, 1000);
+
+      animate[pastGuesses.length] = !animate[pastGuesses.length];
+      _animate[pastGuesses.length] = true;
     }
   }
   const addToGuess = (n: number) => {
@@ -57,11 +63,21 @@
     pastGuesses.forEach((val) => {
       let tempRight = new String(rightGuess);
       let tempFinal = [];
+      let tempGreens = [];
+
       [...val].forEach((char, i) => {
         if (char === tempRight.charAt(i)) {
           tempRight = tempRight.slice(0, i) + 'a' + tempRight.slice(i + 1);
-          tempFinal.push(0);
+          tempGreens.push(1);
           keypadColors[parseInt(char)] = 0;
+        } else {
+          tempGreens.push(0);
+        }
+      });
+
+      [...val].forEach((char, i) => {
+        if (tempGreens[i] === 1) {
+          tempFinal.push(0);
         } else if (tempRight.includes(char)) {
           const index = tempRight.indexOf(char);
           tempRight =
@@ -78,6 +94,7 @@
             keypadColors[parseInt(char)] = 3;
         }
       });
+
       final = [...final, ...tempFinal];
       if (tempFinal.reduce((a, b) => a + b, 0) === 0) endGame(true);
     });
@@ -237,6 +254,7 @@
     }
 
     rightGuess = $curBoard.solution;
+    // rightGuess = '49597';
     guessed = $curBoard.hasGuessed;
     pastGuesses = [...$curBoard.boardState];
   });
@@ -293,28 +311,42 @@
       class="small:w-[320px] w-[240px] w-[calc(75vw+16px)] h-full mx-auto flex items-center justify-center"
     >
       <div
-        class="grid grid-cols-5 grid-rows-7 small:w-[320px] w-[calc(75vw+16px)] small:h-[448px] h-[calc(105vw+16px)] text-center"
+        class="grid grid-cols-1 grid-rows-7 small:w-[320px] w-[calc(75vw+16px)] small:h-[448px] h-[calc(105vw+28px)] text-center"
       >
-        {#each temp as _, i}
-          {#key values[i]}
+        {#each x_s as _, x}
+          {#key animate[x]}
             <div
-              class={`small:w-[62px] small:h-[62px] w-[15vw] aspect-square small:aspect-auto flex items-center justify-center  text-3xl font-semibold ${
-                colors[i] === 2 || colors[i] === 1 || colors[i] === 0
-                  ? 'border-none animate-none'
-                  : values[i]
-                  ? 'border-2 border-[#565758] animate-scale'
-                  : 'border-2 border-[#3a3a3c] animate-none'
-              } ${
-                colors[i] === 0
-                  ? 'bg-[#538d4e]'
-                  : colors[i] === 1
-                  ? 'bg-[#B59F3B]'
-                  : colors[i] === 2
-                  ? 'bg-[#3a3a3c]'
-                  : ''
+              class={`grid grid-cols-5 grid-rows-1 small:w-[320px] w-[calc(75vw+16px)] small:h-[64px] h-[calc(15vw+4px)] text-center ${
+                _animate[x] ? 'animate-shake' : ''
               }`}
             >
-              {values[i] ?? ''}
+              {#each y_s as _, y}
+                {#key values[x * 5 + y]}
+                  <div
+                    class={`small:w-[62px] small:h-[62px] w-[15vw] aspect-square small:aspect-auto flex items-center justify-center  text-3xl font-semibold ${
+                      colors[x * 5 + y] === 2 ||
+                      colors[x * 5 + y] === 1 ||
+                      colors[x * 5 + y] === 0
+                        ? 'border-none animate-none'
+                        : values[x * 5 + y]
+                        ? _animate[x]
+                          ? 'border-2 border-[#565758] animate-none'
+                          : 'border-2 border-[#565758] animate-scale'
+                        : 'border-2 border-[#3a3a3c] animate-none'
+                    } ${
+                      colors[x * 5 + y] === 0
+                        ? 'bg-[#538d4e]'
+                        : colors[x * 5 + y] === 1
+                        ? 'bg-[#B59F3B]'
+                        : colors[x * 5 + y] === 2
+                        ? 'bg-[#3a3a3c]'
+                        : ''
+                    }`}
+                  >
+                    {values[x * 5 + y] ?? ''}
+                  </div>
+                {/key}
+              {/each}
             </div>
           {/key}
         {/each}

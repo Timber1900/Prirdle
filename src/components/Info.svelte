@@ -3,7 +3,7 @@
   import { scale } from 'svelte/transition';
 </script>
 
-<div class="absolute inset-0 h-full mx-auto pointer-events-none pt-20">
+<div class="absolute inset-0 h-full mx-auto pointer-events-none pt-20 z-20">
   {#each $infos as info}
     <div
       in:scale
