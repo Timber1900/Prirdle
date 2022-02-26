@@ -145,7 +145,7 @@
             <span>{guess[0]}</span>
             <span
               class="bg-[#3a3a3c] my-[2px] mx-2 px-2 rounded-sm"
-              style={`width: ${(guess[1] * 100) / $stats.wins}%`}
+              style={`${guess[1] !== 0 ? `width: ${( guess[1] * 100) / $stats.wins}%` : ""}`}
             >
               <p class="ml-auto w-min">{guess[1]}</p>
             </span>
