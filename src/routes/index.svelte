@@ -382,6 +382,14 @@
           if (curGuess.length === 5 && primes.includes(curGuess)) {
             pastGuesses.push(curGuess);
             curGuess = '';
+          } else if (curGuess.length === 5) {
+            $infos = [...$infos, 'Not in prime list'];
+            setTimeout(() => {
+              $infos = [...$infos.slice(1, $infos.length)];
+            }, 1000);
+
+            animate[pastGuesses.length] = !animate[pastGuesses.length];
+            _animate[pastGuesses.length] = true;
           }
         }}
         class="small:w-[100px] small:h-[58px] aspect-[100/58] w-[20vw] rounded small:text-xl text-base font-semibold flex items-center justify-center bg-[#818384]"
