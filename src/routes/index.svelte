@@ -5,11 +5,15 @@
 
   let rightGuess;
   let guessed;
+  let revealed = new Array(5).fill(false);
+  let states: string[] = new Array(35).fill('idle');
+  let colorStates: number[] = new Array(35).fill(undefined);
 
   let keypad = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   let keypadColors = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
   let animate: boolean[] = new Array(7).fill(false);
   let _animate: boolean[] = new Array(7).fill(false);
+  let initialGuesses: string[] = [];
 
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -23,17 +27,49 @@
   function handleKeydown(event) {
     const key: string = event.key;
     if (/^-?\d+$/.test(key) && curGuess.length < 5 && !guessed) {
-      curGuess += `${key}`;
+      addToGuess(key);
     } else if (key === 'Backspace') {
       curGuess = curGuess.substring(0, curGuess.length - 1);
-    } else if (
-      key === 'Enter' &&
-      curGuess.length === 5 &&
-      primes.includes(curGuess)
-    ) {
+    } else if (key === 'Enter') {
+      submitGuess();
+    }
+  }
+
+  const addToGuess = (n: number | string) => {
+    if (curGuess.length < 5 && !guessed) {
+      curGuess += `${n}`;
+      const index = pastGuesses.length * 5 + curGuess.length - 1;
+      states[index] = 'pop';
+      setTimeout(() => {
+        states[index] = 'idle';
+      }, 100);
+    }
+  };
+
+  const submitGuess = () => {
+    if (curGuess.length === 5 && primes.includes(curGuess)) {
       pastGuesses.push(curGuess);
       curGuess = '';
-    } else if (key === 'Enter' && curGuess.length === 5) {
+
+      (async () => {
+        for (
+          let index = (pastGuesses.length - 1) * 5;
+          index < pastGuesses.length * 5;
+          index++
+        ) {
+          states[index] = 'flip-in';
+          setTimeout(() => {
+            states[index] = 'flip-out';
+            colorStates[index] = colors[index];
+            setTimeout(() => {
+              states[index] = 'idle';
+            }, 250);
+          }, 250);
+
+          await sleep(250);
+        }
+      })();
+    } else if (curGuess.length === 5) {
       $infos = [...$infos, 'Not in prime list'];
       setTimeout(() => {
         $infos = [...$infos.slice(1, $infos.length)];
@@ -42,22 +78,17 @@
       animate[pastGuesses.length] = !animate[pastGuesses.length];
       _animate[pastGuesses.length] = true;
     }
-  }
-  const addToGuess = (n: number) => {
-    if (curGuess.length < 5 && !guessed) {
-      curGuess += `${n}`;
-    }
   };
+
   const getValues = (pg: string[], cg: string) => {
     let final = [];
-
-    pastGuesses.forEach((val) => {
+    pg.forEach((val) => {
       final = [...final, ...val];
     });
-
-    return [...final, ...curGuess];
+    return [...final, ...cg];
   };
-  const getColors = (pg: string[], cg: string) => {
+
+  const getColors = (pg: string[], cg: string, test: boolean) => {
     let final = [];
 
     pastGuesses.forEach((val) => {
@@ -96,10 +127,12 @@
       });
 
       final = [...final, ...tempFinal];
-      if (tempFinal.reduce((a, b) => a + b, 0) === 0) endGame(true);
+      if (tempFinal.reduce((a, b) => a + b, 0) === 0 && test) endGame(true);
     });
 
-    if (pastGuesses.length === 7 && !guessed) endGame(false);
+    if (pastGuesses.length === 7 && !guessed) {
+      endGame(false);
+    }
 
     [...curGuess].forEach((char, i) => {
       final.push(3);
@@ -188,7 +221,7 @@
   };
 
   $: values = getValues(pastGuesses, curGuess);
-  $: colors = getColors(pastGuesses, curGuess);
+  $: colors = getColors(pastGuesses, curGuess, true);
   $: {
     updateCurBoard(pastGuesses, curGuess, guessed);
   }
@@ -257,7 +290,30 @@
     // rightGuess = '49597';
     guessed = $curBoard.hasGuessed;
     pastGuesses = [...$curBoard.boardState];
+    initialGuesses = [...pastGuesses];
+
+    (async () => {
+      let tempColors = getColors(pastGuesses, curGuess, false);
+      for (let i = 0; i < 5; i++) {
+        revealed[i] = true;
+        for (let y = 0; y < 7; y++) {
+          const index = y * 5 + i;
+          setTimeout(() => {
+            colorStates[index] = tempColors[index];
+          }, 250);
+        }
+        await sleep(50);
+      }
+    })();
   });
+
+  const sleep = (ms: number) => {
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        res('');
+      }, ms);
+    });
+  };
 
   const updateCurBoard = (pg: string[], cg: string, g: boolean) => {
     if ($curBoard) {
@@ -268,7 +324,7 @@
     }
   };
 
-  function daysIntoYear(date) {
+  const daysIntoYear = (date) => {
     return (
       (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) -
         Date.UTC(date.getFullYear(), 0, 0)) /
@@ -277,7 +333,7 @@
       60 /
       1000
     );
-  }
+  };
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -321,31 +377,18 @@
               }`}
             >
               {#each y_s as _, y}
-                {#key values[x * 5 + y]}
-                  <div
-                    class={`small:w-[62px] small:h-[62px] w-[15vw] aspect-square small:aspect-auto flex items-center justify-center  text-3xl font-semibold ${
-                      colors[x * 5 + y] === 2 ||
-                      colors[x * 5 + y] === 1 ||
-                      colors[x * 5 + y] === 0
-                        ? 'border-none animate-none'
-                        : values[x * 5 + y]
-                        ? _animate[x]
-                          ? 'border-2 border-[#565758] animate-none'
-                          : 'border-2 border-[#565758] animate-scale'
-                        : 'border-2 border-[#3a3a3c] animate-none'
-                    } ${
-                      colors[x * 5 + y] === 0
-                        ? 'bg-[#538d4e]'
-                        : colors[x * 5 + y] === 1
-                        ? 'bg-[#B59F3B]'
-                        : colors[x * 5 + y] === 2
-                        ? 'bg-[#3a3a3c]'
-                        : ''
-                    }`}
-                  >
-                    {values[x * 5 + y] ?? ''}
-                  </div>
-                {/key}
+                <div
+                  class="tile"
+                  data-state={colorStates[x * 5 + y] ?? 'empty'}
+                  data-animation={states[x * 5 + y]}
+                  data-reveal={initialGuesses[x] &&
+                  revealed[y] &&
+                  states[x * 5 + y] === 'idle'
+                    ? 'yes'
+                    : 'no'}
+                >
+                  {values[x * 5 + y] ?? ''}
+                </div>
               {/each}
             </div>
           {/key}
@@ -378,20 +421,7 @@
     </div>
     <div class="flex flex-row gap-2 mt-2">
       <div
-        on:click={() => {
-          if (curGuess.length === 5 && primes.includes(curGuess)) {
-            pastGuesses.push(curGuess);
-            curGuess = '';
-          } else if (curGuess.length === 5) {
-            $infos = [...$infos, 'Not in prime list'];
-            setTimeout(() => {
-              $infos = [...$infos.slice(1, $infos.length)];
-            }, 1000);
-
-            animate[pastGuesses.length] = !animate[pastGuesses.length];
-            _animate[pastGuesses.length] = true;
-          }
-        }}
+        on:click={submitGuess}
         class="small:w-[100px] small:h-[58px] aspect-[100/58] w-[20vw] rounded small:text-xl text-base font-semibold flex items-center justify-center bg-[#818384]"
       >
         Enter
@@ -433,3 +463,92 @@
     </div>
   </footer>
 </div>
+
+<style type="text/postcss">
+  .tile {
+    @apply small:w-[62px] small:h-[62px] w-[15vw] aspect-square small:aspect-auto flex items-center justify-center  text-3xl font-semibold;
+  }
+
+  .tile[data-state='empty'] {
+    @apply border-[#3a3a3c] border-2;
+  }
+
+  .tile[data-state='0'] {
+    @apply bg-[#538d4e];
+  }
+
+  .tile[data-state='1'] {
+    @apply bg-[#B59F3B];
+  }
+
+  .tile[data-state='2'] {
+    @apply bg-[#3a3a3c];
+  }
+
+  .tile[data-state='3'] {
+    @apply border-[#565758] border-2;
+  }
+
+  .tile[data-animation='pop'] {
+    animation-name: PopIn;
+    animation-duration: 100ms;
+  }
+
+  @keyframes PopIn {
+    from {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+
+    40% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+
+  .tile[data-animation='flip-in'] {
+    animation-name: FlipIn;
+    animation-duration: 250ms;
+    animation-timing-function: ease-in;
+  }
+
+  @keyframes FlipIn {
+    0% {
+      transform: rotateX(0);
+    }
+    100% {
+      transform: rotateX(-90deg);
+    }
+  }
+
+  .tile[data-animation='flip-out'] {
+    animation-name: FlipOut;
+    animation-duration: 250ms;
+    animation-timing-function: ease-in;
+  }
+
+  @keyframes FlipOut {
+    0% {
+      transform: rotateX(-90deg);
+    }
+    100% {
+      transform: rotateX(0);
+    }
+  }
+
+  @keyframes Reveal {
+    0% {
+      transform: rotateX(0);
+    }
+    50% {
+      transform: rotateX(-90deg);
+    }
+    100% {
+      transform: rotateX(0);
+    }
+  }
+
+  .tile[data-reveal='yes'] {
+    animation: Reveal 500ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  }
+</style>

@@ -24,6 +24,10 @@ module.exports = {
           '80%': { transform: 'translateX(1%)' },
           '90%': { transform: 'translateX(-1%)' },
           '100%': { transform: 'translateX(0%)' },
+        },
+        flipOut: {
+          'from': { transform: 'rotateX(-90deg))'},
+          'to': { transform: 'rotateX(0deg))'}
         }
       },
       screens: {
@@ -33,6 +37,7 @@ module.exports = {
         scale: 'scale 0.1s ease-in-out',
         fly: 'fly .3s ease-in-out',
         shake: 'shake .5s ease-in-out',
+        flipOut: 'flipOut 250ms ease-in',
       }
     },
   },
