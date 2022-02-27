@@ -10,13 +10,13 @@
   <title>Prirdle</title>
   <meta
     name="description"
-    content="Guess the prime number in 6 tries. A new puzzle is available each day."
+    content="Guess the prime number in 7 tries. A new puzzle is available each day."
   />
 
   <meta property="og:title" content="Prirdle" />
   <meta
     property="og:description"
-    content="Guess the prime number in 6 tries. A new puzzle is available each day."
+    content="Guess the prime number in 7 tries. A new puzzle is available each day."
   />
   <meta
     property="og:image"

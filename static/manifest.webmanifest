@@ -6,7 +6,7 @@
   "start_url": "/",
   "name": "Prirdle - The prime number game",
   "short_name": "Prirdle",
-  "description": "Guess the prime number in 6 tries. A new puzzle is available each day.",
+  "description": "Guess the prime number in 7 tries. A new puzzle is available each day.",
   "icons": [
     {
       "src": "/icon-192x192.png",
