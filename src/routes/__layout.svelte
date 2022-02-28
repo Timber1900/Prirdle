@@ -2,8 +2,9 @@
   import Modal from '../components/Modal.svelte';
   import Popup from '../components/Popup.svelte';
   import Info from '../components/Info.svelte';
-  import { show } from '../store';
+  import { show, showSettings } from '../store';
   import '../app.css';
+  import Settings from '../components/Settings.svelte';
 </script>
 
 <svelte:head>
@@ -41,6 +42,9 @@
 <div class="relative z-0 w-full h-full">
   <Modal show={$show} exit={() => ($show = !$show)} />
   <Popup _show={$show} />
+  {#if $showSettings}
+    <Settings />
+  {/if}
   <Info />
   <slot />
 </div>
