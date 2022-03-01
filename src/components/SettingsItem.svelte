@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
   import Switch from 'svelte-switch';
-  export let changeFunc = () => {};
+  export let changeFunc: () => void;
+  export let checked: boolean;
 </script>
 
 <span
@@ -21,6 +22,7 @@
     onColor="#538d4e"
     handleDiameter={16}
     on:change={changeFunc}
+    {checked}
   >
     <div slot="unCheckedIcon" />
     <div slot="checkedIcon" />

@@ -2,9 +2,14 @@
   import Modal from '../components/Modal.svelte';
   import Popup from '../components/Popup.svelte';
   import Info from '../components/Info.svelte';
-  import { show, showSettings } from '../store';
+  import { expertMode, show, showSettings } from '../store';
   import '../app.css';
   import Settings from '../components/Settings.svelte';
+  import { onMount } from 'svelte';
+
+  onMount(() => {
+    $expertMode = JSON.parse(localStorage.getItem('expert') ?? 'false');
+  });
 </script>
 
 <svelte:head>

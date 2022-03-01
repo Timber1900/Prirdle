@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { createShareString } from '../logic/createShareString';
   export let _show: boolean;
-  import { stats, curBoard, show, infos } from '../store';
+  import { stats, curBoard, show, infos, expertMode, win } from '../store';
   import CloseIcon from './CloseIcon.svelte';
 
   const getTimeToNextDay = () => {
@@ -166,7 +166,9 @@
             on:click={() => {
               const shareString = createShareString(
                 daysIntoYear(new Date()),
-                $curBoard
+                $curBoard,
+                $expertMode,
+                $win
               );
               if (navigator) {
                 if (navigator.share) {
