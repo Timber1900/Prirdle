@@ -392,7 +392,7 @@
       console.log($curBoard);
       $curBoard.hasGuessed = g;
       $curBoard.boardState = pg;
-      $curBoard.colors = colors;
+      $curBoard.colors = colorStates;
       $curBoard.expertStrikes = expertStrikes;
       $curBoard.lines = lines;
       localStorage.setItem('cur-board', JSON.stringify($curBoard));
