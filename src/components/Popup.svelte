@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { createShareString } from '../logic/createShareString';
   export let _show: boolean;
-  import { stats, curBoard, show, infos } from '../store';
+  import { stats, curBoard, show, infos, expertMode, win } from '../store';
+  import CloseIcon from './CloseIcon.svelte';
 
   const getTimeToNextDay = () => {
     //calculate time to next day
@@ -78,17 +79,7 @@
         $show = false;
       }}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        height="24"
-        viewBox="0 0 24 24"
-        width="24"
-      >
-        <path
-          fill="#fff"
-          d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-        />
-      </svg>
+      <CloseIcon height={24} width={24} />
     </span>
     <span
       class="m-3 flex items-center justify-center h-5 text-lg font-semibold"
@@ -145,7 +136,11 @@
             <span>{guess[0]}</span>
             <span
               class="bg-[#3a3a3c] my-[2px] mx-2 px-2 rounded-sm"
-              style={`${guess[1] !== 0 ? `width: ${( guess[1] * 100) / $stats.wins}%` : ""}`}
+              style={`${
+                guess[1] !== 0
+                  ? `width: ${(guess[1] * 90) / $stats.wins + 10}%`
+                  : ''
+              }`}
             >
               <p class="ml-auto w-min">{guess[1]}</p>
             </span>
@@ -171,7 +166,9 @@
             on:click={() => {
               const shareString = createShareString(
                 daysIntoYear(new Date()),
-                $curBoard
+                $curBoard,
+                $expertMode,
+                $win
               );
               if (navigator) {
                 if (navigator.share) {

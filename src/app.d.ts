@@ -26,6 +26,8 @@ declare namespace App {
 		hasGuessed: boolean,
 		solution: string,
 		date: number,
-		colors: number[]
+		colors: number[],
+		expertStrikes: number,
+		lines: number
 	}
 }
